@@ -17,6 +17,7 @@ class CrudUsersController extends Controller
 
     /**
      * Проверка пользователя на гостя
+     * @return string
      */
     public function beforeAction($action)
     {

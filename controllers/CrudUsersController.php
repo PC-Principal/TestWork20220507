@@ -55,9 +55,12 @@ class CrudUsersController extends Controller
         $searchModel = new UsersSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
+        $cntUsers = Users::find()->count();
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'cntUsers' => $cntUsers
         ]);
     }
 
@@ -81,6 +84,11 @@ class CrudUsersController extends Controller
      */
     public function actionCreate()
     {
+        // Если в таблице Users уже есть 10 записей - создать новую не получится
+        if(Users::find()->count() == 10) {
+            return $this->redirect('/crud-users/index');
+        }
+
         $model = new Users();
 
         if ($this->request->isPost) {

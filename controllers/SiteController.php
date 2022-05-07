@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
-use yii\web\HttpException;
 use app\models\LoginForm;
 use yii\web\Response;
 use app\components\ParseRepoComponent;
@@ -17,7 +16,6 @@ class SiteController extends Controller
      * получения репозиториев - после чего кеш снова активен на 10 минут
      *
      * @return string
-     * @throws HttpException
      */
     public function actionIndex()
     {

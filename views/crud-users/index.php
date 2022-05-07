@@ -11,14 +11,15 @@ use app\models\Users;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Список пользователей';
-$this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="users-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Создать нового пользователя', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= ($cntUsers == 10)?
+            Html::a('Создать нового пользователя', ['#'], ['class' => 'btn btn-danger no-drop','disabled' => true]):
+            Html::a('Создать нового пользователя', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>

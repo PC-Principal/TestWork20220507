@@ -100,6 +100,7 @@ a.desc:after {
     padding: 8px;
     border: 10px;
     border-radius: 10px;
+    text-align: center;
 }
 
 .data-block {
@@ -123,3 +124,10 @@ a.desc:after {
 .inline-p {
     display: inline;
 }
+
+.btn.btn-danger.no-drop
+{
+    cursor: no-drop!important;
+}
+
+

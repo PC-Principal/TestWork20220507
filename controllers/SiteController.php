@@ -3,65 +3,33 @@
 namespace app\controllers;
 
 use Yii;
-use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\Response;
-use yii\filters\VerbFilter;
+use yii\web\HttpException;
 use app\models\LoginForm;
-use app\models\ContactForm;
+use yii\web\Response;
+use app\components\ParseRepoComponent;
 
 class SiteController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
 
     /**
-     * {@inheritdoc}
-     */
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
-    }
-
-    /**
-     * Displays homepage.
+     * Список 10 актуальных репозиториев на главной странице, если кеш на 10 минут устаревает - запускается компонент
+     * получения репозиториев - после чего кеш снова активен на 10 минут
      *
      * @return string
+     * @throws HttpException
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $list = Yii::$app->cache->get('repoData');
+
+        if($list == false) {
+            $component = new ParseRepoComponent();
+            $list = $component->TakeData();
+            return $this->render('index',['list' => $list]);
+        } else {
+            return $this->render('index',['list' => $list]);
+        }
     }
 
     /**
@@ -77,7 +45,7 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+            return $this->redirect('/crud-users/index');
         }
 
         $model->password = '';
@@ -99,30 +67,15 @@ class SiteController extends Controller
     }
 
     /**
-     * Displays contact page.
-     *
-     * @return Response|string
+     * {@inheritdoc}
      */
-    public function actionContact()
+    public function actions()
     {
-        $model = new ContactForm();
-        if ($model->load(Yii::$app->request->post()) && $model->contact(Yii::$app->params['adminEmail'])) {
-            Yii::$app->session->setFlash('contactFormSubmitted');
-
-            return $this->refresh();
-        }
-        return $this->render('contact', [
-            'model' => $model,
-        ]);
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
     }
 
-    /**
-     * Displays about page.
-     *
-     * @return string
-     */
-    public function actionAbout()
-    {
-        return $this->render('about');
-    }
 }

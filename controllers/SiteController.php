@@ -19,15 +19,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $list = Yii::$app->cache->get('repoData');
-
-        if($list == false) {
-            $component = new ParseRepoComponent();
-            $list = $component->TakeData();
-            return $this->render('index',['list' => $list]);
-        } else {
-            return $this->render('index',['list' => $list]);
-        }
+        // todo: ТЗ на 10 пользователей GitHub из списка нужно переделать
     }
 
     /**

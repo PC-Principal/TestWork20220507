@@ -39,49 +39,6 @@ class ParseRepoComponent extends Component
      */
     private function RepoList(): array
     {
-        $dataArray = [];
-
-        foreach (Users::UserNames() as $user) {
-            // GitHub требует обязательно указать UserAgent при запросе данных, если превысить лимит API по обращениям -
-            // потребуется Secret Key
-            $myCurl = curl_init();
-            curl_setopt_array($myCurl, array(
-                CURLOPT_URL => 'https://api.github.com/users/'.$user.'/repos?sort=updated&per_page=10',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_USERAGENT => 'PC_Principal',
-               // CURLOPT_USERPWD => "user_id:secret_key"
-            ));
-
-            $data = curl_exec($myCurl);
-
-            $jsonData = Json::decode($data);
-
-            foreach ($jsonData as $repo) {
-
-                // Убираем невалидные символы в поле даты
-                $dateUpdate = str_replace(['Z','T'],['',' '],$repo['updated_at']);
-
-                array_push( $dataArray,[
-                    'user' => $user,
-                    'full_name' => $repo['full_name'],
-                    'url' => $repo['html_url'],
-                    'updated' => $dateUpdate,
-                    'ava' => $repo['owner']['avatar_url'],
-                    'owner_url' => $repo['owner']['html_url'],
-                ]);
-            }
-
-            curl_close($myCurl);
-        }
-
-        usort($dataArray, function($z,$x) {
-            return $z['updated'] < $x['updated'];
-        });
-
-        $dataArray = array_slice($dataArray, 0, 10);
-
-        array_push($dataArray,date("Y-m-d H:i:s",time()));
-
-        return $dataArray;
+        // todo: ТЗ на 10 пользователей GitHub из списка нужно переделать
     }
 }

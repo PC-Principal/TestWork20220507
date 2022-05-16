@@ -13,20 +13,21 @@ class m220516_150422_create_data_table extends Migration
     public function safeUp()
     {
         $this->createTable('data', [
-            'id' => $this->integer(11),
-            'data' => $this->text()->defaultValue(NULL)
+            'id' => $this->primaryKey(),
+            'data' => $this->text()->defaultValue(NULL),
+            'user_id' => $this->integer()
         ]);
 
         $this->createIndex(
-            'idx-data-id',
+            'idx-data-user-id',
             'data',
-            'id'
+            'user_id'
         );
 
         $this->addForeignKey(
             'fk-data-id',
             'data',
-            'id',
+            'user_id',
             'users',
             'id',
             'CASCADE'

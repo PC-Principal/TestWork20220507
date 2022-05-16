@@ -58,4 +58,14 @@ class Users extends \yii\db\ActiveRecord
         $usernames = Users::find()->select('name')->column();
         return $usernames;
     }
+
+    /**
+     * Возвращает id пользователя по имени пользователя
+     * @param $name
+     * @return int
+     */
+    static public function UserByUsername($name) {
+        $id = Users::find()->select(['id'])->where(['name' => $name])->scalar();
+        return $id;
+    }
 }

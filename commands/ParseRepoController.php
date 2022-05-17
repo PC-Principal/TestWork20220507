@@ -73,7 +73,7 @@ class ParseRepoController extends Controller
                 CURLOPT_URL => 'https://api.github.com/users/'.$user.'/repos?sort=updated&per_page=10',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_USERAGENT => 'PC_Principal',
-                // CURLOPT_USERPWD => self::CREDENTIALS
+               // CURLOPT_USERPWD => self::CREDENTIALS
             ));
 
             $data = curl_exec($myCurl);
@@ -82,8 +82,14 @@ class ParseRepoController extends Controller
 
             foreach ($jsonData as $repo) {
 
-                // Убираем невалидные символы в поле даты
-                $dateUpdate = str_replace(['Z','T'],['',' '],$repo['updated_at']);
+                // Если по какой то причине не удастся обработать репозиторий пользователя - переходим к следующей итерации цикла
+                try {
+                    // Убираем невалидные символы в поле даты
+                    $dateUpdate = str_replace(['Z','T'],['',' '],$repo['updated_at']);
+                }
+                catch(\Exception $e) {
+                    continue;
+                }
 
                 // Сохраняем Json в поле таблицы Data
                 $dataModel = new Data();
@@ -98,6 +104,9 @@ class ParseRepoController extends Controller
 
             curl_close($myCurl);
         }
+
+        // Удаляем пользователей с пустыми репозиториями
+        Users::RemoveEmptyRepoUsers();
 
         return 0;
     }

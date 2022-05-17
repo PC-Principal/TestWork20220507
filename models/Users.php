@@ -77,12 +77,22 @@ class Users extends \yii\db\ActiveRecord
     /**
      * Возвращает список пользователей, чьи репозитории еще не были загружены
      * @return array
-     * @throws \yii\db\Exception
      */
     static public function WithoutData()
     {
         $dataIds = Data::find()->select('user_id')->column();
         $users = Users::find()->select(['name'])->where(['not in','id',$dataIds])->column();
         return $users;
+    }
+
+    /**
+     * Метод удаляет пользователей, у которых нет обновленных репозиториев
+     * @return int
+     * @throws \Throwable
+     */
+    static public function RemoveEmptyRepoUsers()
+    {
+        $rm = Users::deleteAll(['in','name',self::WithoutData()]);
+        return $rm;
     }
 }

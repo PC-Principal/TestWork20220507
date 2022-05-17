@@ -15,7 +15,8 @@ class m220516_150422_create_data_table extends Migration
         $this->createTable('data', [
             'id' => $this->primaryKey(),
             'data' => $this->text()->defaultValue(NULL),
-            'user_id' => $this->integer()
+            'user_id' => $this->integer(),
+            'repo_date_update' => $this->timestamp()->defaultValue(null)
         ]);
 
         $this->createIndex(

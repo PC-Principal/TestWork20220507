@@ -4,22 +4,33 @@ namespace app\controllers;
 
 use Yii;
 use yii\web\Controller;
-use app\models\LoginForm;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use app\models\Data;
+use app\models\LoginForm;
 use app\components\ParseRepoComponent;
+
 
 class SiteController extends Controller
 {
 
     /**
-     * Список 10 актуальных репозиториев на главной странице, если кеш на 10 минут устаревает - запускается компонент
-     * получения репозиториев - после чего кеш снова активен на 10 минут
+     * Список 10 актуальных репозиториев на главной странице из БД
      *
      * @return string
+     * @throws NotFoundHttpException
      */
     public function actionIndex()
     {
-        // todo: ТЗ на 10 пользователей GitHub из списка нужно переделать
+        // Если нет репозиториев или кеша - ошибка
+        if(count(Data::ActualRepo()) == 0) {
+            throw new NotFoundHttpException('Данные не были загружены или отсутствует список пользователей. Попробуйте обновить позже.');
+        } else {
+            // todo: Сделать выборку по параметру нового пользователя
+            $list = Data::ActualRepo();
+            $time = Yii::$app->cache->get('timing');
+            return $this->render('index',['list' => $list,'time' => $time]);
+        }
     }
 
     /**

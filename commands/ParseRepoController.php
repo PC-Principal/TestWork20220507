@@ -41,7 +41,8 @@ class ParseRepoController extends Controller
         $cmd = 'pgrep -c php';
         $countProc = shell_exec($cmd);
 
-        if ($countProc == 5) {
+        if ($countProc == 6) {
+            echo 'Досрочное завершение процесса';
             return ExitCode::SOFTWARE;
         } else {
             if($arr == null) {

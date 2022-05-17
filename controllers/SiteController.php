@@ -6,10 +6,10 @@ use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use app\models\Users;
 use app\models\Data;
 use app\models\LoginForm;
-use app\components\ParseRepoComponent;
-
+use app\commands\Parse;
 
 class SiteController extends Controller
 {
@@ -22,13 +22,20 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        // Если нет репозиториев или кеша - ошибка
+        // Если нет репозиториев - ошибка
+        // Если есть репозитории, но есть пустые пользователи - обновить и отрендерить
+        // Если все ок, просто отрендерить
         if(count(Data::ActualRepo()) == 0) {
             throw new NotFoundHttpException('Данные не были загружены или отсутствует список пользователей. Попробуйте обновить позже.');
-        } else {
-            // todo: Сделать выборку по параметру нового пользователя
+        } elseif(Data::ActualRepo() > 0 && !empty(Users::WithoutData())) {
+            $consoleApp = Parse::getInstance();
+            $consoleApp->actionTakeData(Users::WithoutData());
             $list = Data::ActualRepo();
-            $time = Yii::$app->cache->get('timing');
+            $time = Yii::$app->cache->get('updated');
+            return $this->render('index',['list' => $list,'time' => $time]);
+        } else {
+            $list = Data::ActualRepo();
+            $time = (Yii::$app->cache->get('updated'))?Yii::$app->cache->get('updated'):Yii::$app->cache->get('timing');
             return $this->render('index',['list' => $list,'time' => $time]);
         }
     }

@@ -55,7 +55,9 @@ class Users extends \yii\db\ActiveRecord
      * @return array
      */
     static public function UserNames() {
-        $usernames = Users::find()->select('name')->column();
+        $usernames = Users::find()
+            ->select('name')
+            ->column();
         return $usernames;
     }
 
@@ -65,7 +67,22 @@ class Users extends \yii\db\ActiveRecord
      * @return int
      */
     static public function UserByUsername($name) {
-        $id = Users::find()->select(['id'])->where(['name' => $name])->scalar();
+        $id = Users::find()
+            ->select(['id'])
+            ->where(['name' => $name])
+            ->scalar();
         return $id;
+    }
+
+    /**
+     * Возвращает список пользователей, чьи репозитории еще не были загружены
+     * @return array
+     * @throws \yii\db\Exception
+     */
+    static public function WithoutData()
+    {
+        $dataIds = Data::find()->select('user_id')->column();
+        $users = Users::find()->select(['name'])->where(['not in','id',$dataIds])->column();
+        return $users;
     }
 }

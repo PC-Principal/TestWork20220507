@@ -19,25 +19,40 @@ use Yii;
  */
 class ParseRepoController extends Controller
 {
+    // 4 procceess
     /**
      * Время кеширования списка в секундах
      */
     const TIME = 600;
 
     /**
-     * Начинаем работу компонента парсинга данных
+     * Github Token
+     */
+    const CREDENTIALS = "1cb3ac2852b137fbc132:dd85f7ed98e78cecbfe79d3ad84fd6a6b16630ba";
+
+    /**
+     * Начинаем работу компонента парсинга данных, если данные не пришли - то парсим весь список, если пришли то
+     * парсим пользователей у которых нет доступных репозиториев
+     * @param array
      * @return int
      */
-    public function actionTakeData($username = null)
+    public function actionTakeData(array $arr = null)
     {
 
-        if($username == null) {
-            Data::TruncateTable();
-            Yii::$app->cache->set('timing', date('Y-m-d H:i:s',time()),self::TIME);
-            return self::RepoList();
+        $cmd = 'pgrep -c php';
+        $countProc = shell_exec($cmd);
+
+        if ($countProc == 5) {
+            return ExitCode::SOFTWARE;
         } else {
-            // some custom logic
-            // todo: Сделать возможность дергать скрипт с параметром пользователя
+            if($arr == null) {
+                Data::TruncateTable();
+                Yii::$app->cache->set('timing', date('Y-m-d H:i:s',time()),self::TIME);
+                return self::RepoList(Users::UserNames());
+            } else {
+                Yii::$app->cache->set('updated', date('Y-m-d H:i:s',time()),self::TIME);
+                return self::RepoList($arr);
+            }
         }
 
         return ExitCode::OK;
@@ -45,13 +60,12 @@ class ParseRepoController extends Controller
 
     /**
      * Получаем данные пользовательских репозиториев и собираем их в массив
+     * @param array
      * @return int
      */
-    private function RepoList()
+    private function RepoList(array $array)
     {
-        // todo: В конце убрать отсюда SecretToken
-
-        foreach (Users::UserNames() as $user) {
+        foreach ($array as $user) {
             // GitHub требует обязательно указать UserAgent при запросе данных, если превысить лимит API по обращениям -
             // потребуется Secret Key
             $myCurl = curl_init();
@@ -59,7 +73,7 @@ class ParseRepoController extends Controller
                 CURLOPT_URL => 'https://api.github.com/users/'.$user.'/repos?sort=updated&per_page=10',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_USERAGENT => 'PC_Principal',
-                // CURLOPT_USERPWD => "1cb3ac2852b137fbc132:dd85f7ed98e78cecbfe79d3ad84fd6a6b16630ba"
+                CURLOPT_USERPWD => self::CREDENTIALS
             ));
 
             $data = curl_exec($myCurl);

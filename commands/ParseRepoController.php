@@ -19,7 +19,6 @@ use Yii;
  */
 class ParseRepoController extends Controller
 {
-    // 4 procceess
     /**
      * Время кеширования списка в секундах
      */
@@ -28,11 +27,11 @@ class ParseRepoController extends Controller
     /**
      * Github Token
      */
-    const CREDENTIALS = "1cb3ac2852b137fbc132:dd85f7ed98e78cecbfe79d3ad84fd6a6b16630ba";
+    const CREDENTIALS = "???";
 
     /**
      * Начинаем работу компонента парсинга данных, если данные не пришли - то парсим весь список, если пришли то
-     * парсим пользователей у которых нет доступных репозиториев
+     * парсим пользователей у которых нет доступных репозиториев, также проверяем количество процессов, запущенных по php
      * @param array
      * @return int
      */
@@ -73,7 +72,7 @@ class ParseRepoController extends Controller
                 CURLOPT_URL => 'https://api.github.com/users/'.$user.'/repos?sort=updated&per_page=10',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_USERAGENT => 'PC_Principal',
-                CURLOPT_USERPWD => self::CREDENTIALS
+                // CURLOPT_USERPWD => self::CREDENTIALS
             ));
 
             $data = curl_exec($myCurl);
